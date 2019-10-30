@@ -63,7 +63,7 @@ def timer():
     stop = request.args.get('stop')
     hstart, mstart = [int(x) for x in start.split(':')]
     hstop, mstop = [int(x) for x in stop.split(':')]
-    return '<head><meta http-equiv="refresh" content="1;URL=status" /></head>'
+    return '<head><meta http-equiv="refresh" content="0;URL=status" /></head>'
 
 
 @app.route("/status")

@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from flask import Flask, request
+from threading import Lock
 
 app = Flask(__name__)
 
@@ -9,24 +10,38 @@ hstart = 0
 hstop = 0
 mstart = 0
 mstop = 0
-
+lock = Lock()
 
 @app.route("/on")
 def on():
     global lightOn
     global timeOn
+    global lock
+    lock.acquire()
+    try:
+        with open('log.txt','a') as f:
+            f.write('{} {} SET MODE ON\n'.format(datetime.now(),request.remote_addr))
+    finally:
+        lock.release()
     lightOn = True
     timeOn = False
-    return status()
+    return '<head><meta http-equiv="refresh" content="0;URL=status" /></head>'
 
 
 @app.route("/off")
 def off():
     global lightOn
     global timeOn
+    global lock
+    lock.acquire()
+    try:
+        with open('log.txt','a') as f:
+            f.write('{} {} SET MODE OFF\n'.format(datetime.now(),request.remote_addr))
+    finally:
+        lock.release()
     timeOn = False
     lightOn = False
-    return status()
+    return '<head><meta http-equiv="refresh" content="0;URL=status" /></head>'
 
 
 def isOn():
@@ -59,8 +74,15 @@ def timer():
     global hstop
     global mstart
     global mstop
+    global lock
     start = request.args.get('start')
     stop = request.args.get('stop')
+    lock.acquire()
+    try:
+        with open('log.txt','a') as f:
+            f.write('{} {} SET MODE TIME ({}-{})\n'.format(datetime.now(),request.remote_addr,start,stop))
+    finally:
+        lock.release()
     hstart, mstart = [int(x) for x in start.split(':')]
     hstop, mstop = [int(x) for x in stop.split(':')]
     return '<head><meta http-equiv="refresh" content="0;URL=status" /></head>'

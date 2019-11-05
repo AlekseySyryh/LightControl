@@ -294,14 +294,14 @@ def status():
         resp += '<div class="info-text">Таймер с {:02d}:{:02d} по {:02d}:{:02d}</div>'.format(hstart, mstart, hstop,
                                                                                               mstop)
     else:
-        resp += '<div class="info-text">Ручной режим.<div>'
+        resp += '<div class="info-text">Ручной режим.</div>'
 
     resp += '''
             <section class="enable-light-buttons-section">
                 <h2 class="section-title">Ручное управление</h2>
                 <div class="enable-light-buttons">
-                         <button type="button" "location.href=\'on\'" class="ripple button">Включить свет</button>
-                            <button type="button" "location.href=\'off\'" class="ripple button">Выключить свет</button>
+                         <button type="button" onclick="location.href=\'on\'" class="ripple button">Включить свет</button>
+                            <button type="button" onclick="location.href=\'off\'" class="ripple button">Выключить свет</button>
                       </div>
             </section>
             

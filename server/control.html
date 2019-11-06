@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Управление светом</title>
+    <link href="style.css" rel="stylesheet">
+</head>
+
+<body>
+<div class="app">
+    <header>
+        <h1 class="app-header">Управление светом</h1>
+    </header>
+    <main class="app-main">
+        <section>
+            <div class="info-text">Местное время: {:02d}:{:02d}:{:02d}</div>
+            <div class="info-text">Свет {}.</div>
+            <div class="info-text">{}</div>
+        </section>
+        <section class="enable-light-buttons-section">
+            <h2 class="section-title">Ручное управление</h2>
+            <div class="enable-light-buttons">
+                <button type="button" onclick="location.href='on'" class="ripple button">Включить свет</button>
+                <button type="button" onclick="location.href='off'" class="ripple button">Выключить свет
+                </button>
+            </div>
+        </section>
+
+        <section class="timer-form-section">
+            <h2 class="section-title">Настройка таймера</h2>
+            <form class="timer-form" action="http://ender.gq:8080/timer">
+                <label for="start" class="timer-label timer-label-start">C:</label>
+                <input type="time" id="start" name="start" class="timer-input timer-input-start" value="{:02d}:{:02d}">
+                <label for="stop" class="timer-label timer-label-stop">По:</label>
+                <input type="time" id="stop" name="stop" class="timer-input  timer-input-stop" value="{:02d}:{:02d}">
+                <button type="submit" class="timer-apply-button ripple button">Включить таймер</button>
+            </form>
+        </section>
+    </main>
+</div>
+</body>
+</html>

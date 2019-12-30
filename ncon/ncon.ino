@@ -113,7 +113,7 @@ void loop() {
       delay(1000);
       if (cycleNo == 0) {
         soil = analogRead(A5);
-        
+        digitalWrite(A1, LOW);
        // digitalWrite(A2, LOW);
         cycleNo = cycle;
       }

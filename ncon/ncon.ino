@@ -2,7 +2,6 @@
 #include <DHT.h>
 #include <SoftwareSerial.h>
  
-SoftwareSerial mySerial(A4, A2);
 #define DHTPIN 12
 #define DHTTYPE DHT22
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
@@ -40,7 +39,7 @@ byte* buff;
 void setup() {
   Serial.begin(115200);
   buff = new byte[9];
- mySerial.begin(9600);
+// mySerial.begin(9600);
   pinMode(11, OUTPUT);
   digitalWrite(11, LOW);
   pinMode(13, OUTPUT);
@@ -65,7 +64,6 @@ byte dim = 128;
 int cycle = 3600;
 bool showCycle = false;
 int soil;
-int aq = 0;
 int cycleNo = 0;
 float h;
 float t;
@@ -101,17 +99,6 @@ void loop() {
     case BTN_SELECT:
       cycleNo = 30;
       break;
-   case BTN_RIGHT:
-        mySerial.write(0xFF);
-        mySerial.write(0x01);
-        mySerial.write(0x87);
-        mySerial.write((byte)0x00);
-        mySerial.write((byte)0x00);
-        mySerial.write((byte)0x00);
-        mySerial.write((byte)0x00);
-        mySerial.write((byte)0x00);
-        mySerial.write(0x78);
-      break;
     default:
       if (cycleNo == 0) {
         digitalWrite(A1, HIGH);
@@ -127,7 +114,6 @@ void loop() {
       if (cycleNo == 0) {
         soil = analogRead(A5);
         digitalWrite(A1, LOW);
-        
        // digitalWrite(A2, LOW);
         cycleNo = cycle;
       }
@@ -143,49 +129,11 @@ void loop() {
         lcd.setCursor(0, 1);
       lcd.print("S ");
       lcd.print(soil);
-      
-      if (cycleNo%10 == 0)
-      {
-        /*if (aq > 1000){
-          tone(3, 1760, 1000);
-          delay(2000);
-          tone(3, 1760, 1000);
-          delay(1000);
-        }*/
-      }   
-        mySerial.write(0xFF);
-        mySerial.write(0x01);
-        mySerial.write(0x86);
-        mySerial.write((byte)0x00);
-        mySerial.write((byte)0x00);
-        mySerial.write((byte)0x00);
-        mySerial.write((byte)0x00);
-        mySerial.write((byte)0x00);
-        mySerial.write(0x79);
-      
-      while (mySerial.available())
-      {
-          buff[ix++] = mySerial.read();
-          if ((ix > 0 && buff[0] != 0xFF) ||
-              (ix > 1 && buff[1] != 0x86))
-              {
-                ix = 0;
-                continue;
-              }
-          if (ix > 8){
-            aq = 256*buff[2]+buff[3];
-            for (int i = 0; i < ix; ++i){
-              Serial.write(buff[i]);
-            }
-            ix = 0;
-          }
-          
-          
-      }
       lcd.print("  ");
       lcd.setCursor(9, 1);
-      lcd.print(aq);
+      lcd.print("REM");
+      lcd.print(cycleNo);
+      lcd.print("       ");
 
-      lcd.print("PPM        ");
 
 }

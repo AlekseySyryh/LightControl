@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from flask import Flask, request, send_from_directory
 from threading import Lock
 import io
+import psycopg2
 
 app = Flask(__name__, static_url_path='')
 
@@ -113,6 +114,31 @@ def status():
     resp = file.format(time.hour, time.minute, time.second, lstr, tstr, hstart, mstart, hstop, mstop)
     return resp
 
+@app.route("/meas")
+def meas():
+	conn = psycopg2.connect(dbname='ender',host='localhost')
+	cursor = conn.cursor()
+	aq = int(request.args.get('aq'))
+	t = request.args.get('t')
+	p = 0.750061677078540615715689846343*float(request.args.get('p'))/100
+	h = request.args.get('h')
+	time = datetime.utcnow()
+	cursor.execute("insert into data (ts,co,t,p,h) values ('{}',{},{},{},{});".format(time,aq,t,p,h))
+	conn.commit()
+	conn.close()
+	return "DONE"
+
+@app.route("/scud")
+def scud():
+	conn = psycopg2.connect(dbname='ender',host='localhost')
+	cursor = conn.cursor()
+	id = int(request.args.get('id'))
+	print(id)
+	time = datetime.utcnow()
+	cursor.execute("insert into scud (ts,id) values ('{}',{});".format(time,id))
+	conn.commit()
+	conn.close()
+	return "DONE"
 
 @app.route("/style.css")
 def style():

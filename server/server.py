@@ -121,10 +121,36 @@ def scudreport():
     month = request.args.get('month')
 
     if month is None:
-        report = "Нету репорты"
+        report = ""
     else:
-        report = "Репорта за "+month
-
+        conn = psycopg2.connect(dbname='ender', host='localhost')
+        cursor = conn.cursor()
+        cursor.execute(""
+                       "select "
+                       "    name,"
+                       "    date_trunc('day',ts+'5 hour')::date date,"
+                       "    date_trunc('second',min(ts+'5 hour'))::time ints,"
+                       "    date_trunc('second',max(ts+'5 hour'))::time outts "
+                       "from "
+                       "    scud "
+                       "inner join "
+                       "    scud_user "
+                       "on "
+                       "    scud.id=scud_user.id "
+                       "where "
+                       "    date_trunc('month',ts+'5 hour') = date('{}-01') "
+                       "group by "
+                       "    name,"
+                       "    date_trunc('day',ts+'5 hour')"
+                       "order by "
+                       "    date_trunc('day',ts+'5 hour'),name;);".format(month))
+        rows = cursor.fetchall()
+        report = "<dt><tr><th>Name</th><th>Date</th><th>In</th><th>Out</th></tr>"
+        for row in rows:
+            report += "<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</th></tr>".format(row)
+        report += "</dt>"
+        conn.commit()
+        conn.close()
     return filescud.format(time.year, time.month, report)
 
 @app.route("/meas")

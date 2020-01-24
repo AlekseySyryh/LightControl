@@ -1,8 +1,11 @@
 from datetime import datetime, timedelta
-from flask import Flask, request, send_from_directory
+from flask import Flask, request, send_from_directory, send_file
 from threading import Lock
 import io
 import psycopg2
+import pandas as pd
+import os
+import tempfile
 
 app = Flask(__name__, static_url_path='')
 
@@ -114,6 +117,56 @@ def status():
     resp = filecont.format(time.hour, time.minute, time.second, lstr, tstr, hstart, mstart, hstop, mstop)
     return resp
 
+
+@app.route('/scudxls')
+def scudxls():
+    tf = tempfile.NamedTemporaryFile()
+    month = request.args.get('month')
+    conn = psycopg2.connect(dbname='ender', host='localhost')
+    cursor = conn.cursor()
+    cursor.execute(""
+                   "select "
+                   "    name,"
+                   "    date_trunc('day',ts+'5 hour')::date date,"
+                   "    date_trunc('second',min(ts+'5 hour'))::time ints,"
+                   "    date_trunc('second',max(ts+'5 hour'))::time outts "
+                   "from "
+                   "    scud "
+                   "inner join "
+                   "    scud_user "
+                   "on "
+                   "    scud.id=scud_user.id "
+                   "where "
+                   "    date_trunc('month',ts+'5 hour') = date('{}-01') "
+                   "group by "
+                   "    name,"
+                   "    date_trunc('day',ts+'5 hour')"
+                   "order by "
+                   "    date_trunc('day',ts+'5 hour'),name;".format(month))
+    rows = cursor.fetchall()
+    names = []
+    days = []
+    ins = []
+    outs = []
+    for row in rows:
+        names.append(row[0])
+        days.append(row[1])
+        ins.append(row[2])
+        outs.append(row[3])
+
+    df = pd.DataFrame({"Name": names, "Day": days, "In": ins, "Outs": outs})
+    writer = pd.ExcelWriter(tf, engine='xlsxwriter')
+    df.to_excel(writer, sheet_name='Sheet1')
+    writer.save()
+    buffer = io.BytesIO()
+    with open(tf, 'rb') as f:
+        buffer.write(f.read(-1))
+    buffer.seek(0)
+    os.remove(tf)
+    return send_file(buffer, as_attachment=True,
+                     attachment_filename='report.xlsx')
+
+
 @app.route("/scudreport")
 def scudreport():
     global filescud
@@ -147,8 +200,9 @@ def scudreport():
         rows = cursor.fetchall()
         report = "<table><tr><th>Name</th><th>Date</th><th>In</th><th>Out</th></tr>"
         for row in rows:
-             report += "<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</th></tr>".format(row[0], row[1], row[2], row[3])
-        report += "</table>"
+            report += "<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</th></tr>".format(row[0], row[1], row[2], row[3])
+        report += "</table>" \
+                  '<a href="scudxls?month={:s}">XLSX</a>'.format(month)
         print(report)
         conn.commit()
         conn.close()

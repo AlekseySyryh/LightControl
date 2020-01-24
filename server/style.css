@@ -127,9 +127,9 @@ body {
 }
 
 .report-xls-url {
-    width: 100%;
     display: block;
     text-align: center;
+    text-decoration: none;
 }
 
 @media (min-width: 400px) {

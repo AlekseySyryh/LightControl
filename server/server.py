@@ -153,7 +153,7 @@ def scudxlsx():
         ins.append(row[2])
         outs.append(row[3])
 
-    df = pd.DataFrame({"Name": names, "Day": days, "In": ins, "Outs": outs})
+    df = pd.DataFrame({"ФИО": names, "День": days, "Вход": ins, "Выход": outs})
     df.Day = pd.to_datetime(df.Day)
     writer = pd.ExcelWriter(tf.name, engine='xlsxwriter')
     df.to_excel(writer, sheet_name='Sheet1', index=None)
@@ -197,7 +197,7 @@ def scudreport():
                        "order by "
                        "    date_trunc('day',ts+'5 hour'),name;".format(month))
         rows = cursor.fetchall()
-        report = '<table border class="report-table"><tr><th>Name</th><th>Date</th><th>In</th><th>Out</th></tr>'
+        report = '<table border class="report-table"><tr><th>ФИО</th><th>День</th><th>Вход</th><th>Выход</th></tr>'
         for row in rows:
             report += "<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</th></tr>".format(row[0], row[1], row[2], row[3])
         report += "</table>" \
@@ -208,17 +208,17 @@ def scudreport():
 
 @app.route("/meas")
 def meas():
-	conn = psycopg2.connect(dbname='ender',host='localhost')
-	cursor = conn.cursor()
-	aq = int(request.args.get('aq'))
-	t = request.args.get('t')
-	p = 0.750061677078540615715689846343*float(request.args.get('p'))/100
-	h = request.args.get('h')
-	time = datetime.utcnow()
-	cursor.execute("insert into data (ts,co,t,p,h) values ('{}',{},{},{},{});".format(time,aq,t,p,h))
-	conn.commit()
-	conn.close()
-	return "DONE"
+    conn = psycopg2.connect(dbname='ender', host='localhost')
+    cursor = conn.cursor()
+    aq = int(request.args.get('aq'))
+    t = request.args.get('t')
+    p = 0.75 * float(request.args.get('p')) / 100
+    h = request.args.get('h')
+    time = datetime.utcnow()
+    cursor.execute("insert into data (ts,co,t,p,h) values ('{}',{},{},{},{});".format(time, aq, t, p, h))
+    conn.commit()
+    conn.close()
+    return "DONE"
 
 @app.route("/scud")
 def scud():

@@ -147,7 +147,7 @@ def scudreport():
         rows = cursor.fetchall()
         report = "<dt><tr><th>Name</th><th>Date</th><th>In</th><th>Out</th></tr>"
         for row in rows:
-            report += "<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</th></tr>".format(row)
+            report += "<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</th></tr>".format(row[0], row[1], row[2], row[3])
         report += "</dt>"
         conn.commit()
         conn.close()

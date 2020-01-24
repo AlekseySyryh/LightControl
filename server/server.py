@@ -197,11 +197,11 @@ def scudreport():
                        "order by "
                        "    date_trunc('day',ts+'5 hour'),name;".format(month))
         rows = cursor.fetchall()
-        report = '<table border><tr><th>Name</th><th>Date</th><th>In</th><th>Out</th></tr>'
+        report = '<table border class="report-table"><tr><th>Name</th><th>Date</th><th>In</th><th>Out</th></tr>'
         for row in rows:
             report += "<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</th></tr>".format(row[0], row[1], row[2], row[3])
         report += "</table>" \
-                  '<a href="scudxlsx?month={:s}">XLSX</a>'.format(month)
+                  '<a href="scudxlsx?month={:s}" class="report-xls-url">XLSX</a>'.format(month)
         print(report)
         conn.commit()
         conn.close()

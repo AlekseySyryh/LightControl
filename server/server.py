@@ -118,8 +118,8 @@ def status():
     return resp
 
 
-@app.route('/scudxls')
-def scudxls():
+@app.route('/scudxlsx')
+def scudxlsx():
     tf = tempfile.NamedTemporaryFile()
     month = request.args.get('month')
     conn = psycopg2.connect(dbname='ender', host='localhost')
@@ -156,7 +156,7 @@ def scudxls():
 
     df = pd.DataFrame({"Name": names, "Day": days, "In": ins, "Outs": outs})
     writer = pd.ExcelWriter(tf.name, engine='xlsxwriter')
-    df.to_excel(writer, sheet_name='Sheet1')
+    df.to_excel(writer, sheet_name='Sheet1', index=None)
     writer.save()
     buffer = io.BytesIO()
     with open(tf.name, 'rb') as f:
@@ -198,11 +198,11 @@ def scudreport():
                        "order by "
                        "    date_trunc('day',ts+'5 hour'),name;".format(month))
         rows = cursor.fetchall()
-        report = "<table><tr><th>Name</th><th>Date</th><th>In</th><th>Out</th></tr>"
+        report = '<table border><tr><th>Name</th><th>Date</th><th>In</th><th>Out</th></tr>'
         for row in rows:
             report += "<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</th></tr>".format(row[0], row[1], row[2], row[3])
         report += "</table>" \
-                  '<a href="scudxls?month={:s}">XLSX</a>'.format(month)
+                  '<a href="scudxlsx?month={:s}">XLSX</a>'.format(month)
         print(report)
         conn.commit()
         conn.close()

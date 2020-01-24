@@ -9,9 +9,9 @@ import tempfile
 app = Flask(__name__, static_url_path='')
 
 lightOn = True
-timeOn = False
-hstart = 0
-hstop = 0
+timeOn = True
+hstart = 9
+hstop = 18
 mstart = 0
 mstop = 0
 lock = Lock()
@@ -154,7 +154,6 @@ def scudxlsx():
         outs.append(row[3])
 
     df = pd.DataFrame({"ФИО": names, "День": days, "Вход": ins, "Выход": outs})
-    df.Day = pd.to_datetime(df.Day)
     writer = pd.ExcelWriter(tf.name, engine='xlsxwriter')
     df.to_excel(writer, sheet_name='Sheet1', index=None)
     writer.save()
@@ -162,9 +161,7 @@ def scudxlsx():
     with open(tf.name, 'rb') as f:
         buffer.write(f.read(-1))
     buffer.seek(0)
-    return send_file(buffer, as_attachment=True,
-                     attachment_filename='report.xlsx')
-
+    return send_file(buffer, as_attachment=True, attachment_filename='report.xlsx', cache_timeout=-1)
 
 @app.route("/scudreport")
 def scudreport():

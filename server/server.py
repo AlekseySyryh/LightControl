@@ -155,14 +155,14 @@ def scudxls():
         outs.append(row[3])
 
     df = pd.DataFrame({"Name": names, "Day": days, "In": ins, "Outs": outs})
-    writer = pd.ExcelWriter(tf, engine='xlsxwriter')
+    writer = pd.ExcelWriter(tf.name, engine='xlsxwriter')
     df.to_excel(writer, sheet_name='Sheet1')
     writer.save()
     buffer = io.BytesIO()
-    with open(tf, 'rb') as f:
+    with open(tf.name, 'rb') as f:
         buffer.write(f.read(-1))
     buffer.seek(0)
-    os.remove(tf)
+    os.remove(tf.name)
     return send_file(buffer, as_attachment=True,
                      attachment_filename='report.xlsx')
 

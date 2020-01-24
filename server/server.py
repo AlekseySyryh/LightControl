@@ -201,7 +201,7 @@ def scudreport():
         for row in rows:
             report += "<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</th></tr>".format(row[0], row[1], row[2], row[3])
         report += "</table>" \
-                  '<a href="scudxlsx?month={:s}" class="report-xls-url">XLSX</a>'.format(month)
+                  '<a href="scudxlsx?month={:s}" class="report-xls-url ripple button">XLSX</a>'.format(month)
         print(report)
         conn.commit()
         conn.close()

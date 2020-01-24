@@ -97,7 +97,7 @@ def status():
     global hstop
     global mstart
     global mstop
-    global file
+    global filecont
 
     time = datetime.utcnow() + timedelta(hours=5)
 
@@ -110,9 +110,21 @@ def status():
     else:
         tstr = "Ручной режим"
 
-    resp = file.format(time.hour, time.minute, time.second, lstr, tstr, hstart, mstart, hstop, mstop)
+    resp = filecont.format(time.hour, time.minute, time.second, lstr, tstr, hstart, mstart, hstop, mstop)
     return resp
 
+@app.route("/scudreport")
+def scudreport():
+    global filescud
+    time = datetime.utcnow() + timedelta(hours=5)
+    month = request.args.get('month')
+
+    if month is None:
+        report = "Нету репорты"
+    else:
+        report = "Репорта за "+month
+
+    return filescud.format(time.year, time.month, report)
 
 @app.route("/style.css")
 def style():
@@ -132,7 +144,10 @@ def hello():
 
 
 with io.open('control.html', mode='rt', encoding='utf-8') as f:
-    file = f.read()
+    filecont = f.read()
+
+with io.open('scudreport.html', mode='rt', encoding='utf-8') as f:
+    filescud = f.read()
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8080)

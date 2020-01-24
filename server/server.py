@@ -143,7 +143,7 @@ def scudreport():
                        "    name,"
                        "    date_trunc('day',ts+'5 hour')"
                        "order by "
-                       "    date_trunc('day',ts+'5 hour'),name;);".format(month))
+                       "    date_trunc('day',ts+'5 hour'),name;".format(month))
         rows = cursor.fetchall()
         report = "<dt><tr><th>Name</th><th>Date</th><th>In</th><th>Out</th></tr>"
         for row in rows:

@@ -4,7 +4,6 @@ from threading import Lock
 import io
 import psycopg2
 import pandas as pd
-import os
 import tempfile
 
 app = Flask(__name__, static_url_path='')
@@ -155,6 +154,7 @@ def scudxlsx():
         outs.append(row[3])
 
     df = pd.DataFrame({"Name": names, "Day": days, "In": ins, "Outs": outs})
+    df.Day = pd.to_datetime(df.Day)
     writer = pd.ExcelWriter(tf.name, engine='xlsxwriter')
     df.to_excel(writer, sheet_name='Sheet1', index=None)
     writer.save()
@@ -162,7 +162,6 @@ def scudxlsx():
     with open(tf.name, 'rb') as f:
         buffer.write(f.read(-1))
     buffer.seek(0)
-    os.remove(tf.name)
     return send_file(buffer, as_attachment=True,
                      attachment_filename='report.xlsx')
 

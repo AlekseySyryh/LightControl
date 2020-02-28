@@ -124,7 +124,34 @@ def scudxlsx():
     conn = psycopg2.connect(dbname='ender', host='localhost')
     cursor = conn.cursor()
     cursor.execute(""
-                   "select "
+                   "select distinct "
+                   "    name "
+                   "from "
+                   "    scud "
+                   "inner join "
+                   "    scud_user "
+                   "on "
+                   "    scud.id=scud_user.id "
+                   "where "
+                   "    date_trunc('month',ts+'5 hour') = date('{}-01');".format(month))
+    rows = cursor.fetchall()
+    names = []
+    for row in rows:
+        names.append(row[0])
+
+    cursor.execute("select distinct "
+                   "    date_trunc('day',ts+'5 hour')::date date "
+                   "from "
+                   "    scud "
+                   "where "
+                   "    date_trunc('month',ts+'5 hour') = date('{}-01')".format(month))
+    rows = cursor.fetchall()
+    cols = []
+    for row in rows:
+        cols.append(row[0])
+    df = pd.DataFrame(columns=cols, index=names)
+
+    cursor.execute("select "
                    "    name,"
                    "    date_trunc('day',ts+'5 hour')::date date,"
                    "    date_trunc('second',min(ts+'5 hour'))::time ints,"
@@ -143,19 +170,15 @@ def scudxlsx():
                    "order by "
                    "    date_trunc('day',ts+'5 hour'),name;".format(month))
     rows = cursor.fetchall()
-    names = []
-    days = []
-    ins = []
-    outs = []
     for row in rows:
-        names.append(row[0])
-        days.append(row[1])
-        ins.append(row[2])
-        outs.append(row[3])
+         df.loc[row[0],row[1]] = "{} - {}".format(row[2],row[3])
 
-    df = pd.DataFrame({"ФИО": names, "День": days, "Вход": ins, "Выход": outs})
     writer = pd.ExcelWriter(tf.name, engine='xlsxwriter')
-    df.to_excel(writer, sheet_name='Sheet1', index=None)
+    df.to_excel(writer, sheet_name='Sheet1')
+    cf = writer.book.add_format({'align':'center'});
+    worksheet = writer.sheets['Sheet1']
+    worksheet.set_column(0,0,40,cf)
+    worksheet.set_column(1,32,20,cf)
     writer.save()
     buffer = io.BytesIO()
     with open(tf.name, 'rb') as f:

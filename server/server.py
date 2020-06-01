@@ -249,8 +249,10 @@ def scud():
 	time = datetime.utcnow()
 	cursor.execute("insert into scud (ts,id) values ('{}',{});".format(time,id))
 	conn.commit()
+	cursor.execute("select melody from scud_melody order by random() limit 1");
+	row = cursor.fetchall()[0]
 	conn.close()
-	return "DONE"
+	return row[0]
 
 @app.route("/style.css")
 def style():

@@ -20,14 +20,14 @@ void red() {
     digitalWrite(RED, LOW);
     digitalWrite(GREEN, HIGH);
     digitalWrite(BLUE, HIGH);
-    Serial.print("RED\n");
+//    Serial.print("RED\n");
 }
 
 void green() {
     digitalWrite(RED, HIGH);
     digitalWrite(GREEN, LOW);
     digitalWrite(BLUE, HIGH);
-    Serial.print("GREEN\n");
+//    Serial.print("GREEN\n");
  
 }
 
@@ -35,8 +35,36 @@ void blue() {
     digitalWrite(RED, HIGH);
     digitalWrite(GREEN, HIGH);
     digitalWrite(BLUE, LOW);
-    Serial.print("BLUE\n");
-  
+  //  Serial.print("BLUE\n");
+}
+
+void note(int tonec, int duration){
+  tone(D2, tonec, duration);
+  delay(duration+10);
+}
+
+int param = 0;
+void play(String s){
+  int i = -1;
+  do {
+    int prev_i = i+1;
+    i = s.indexOf(' ', prev_i);
+    int ci = s.indexOf(',',prev_i);
+    int f = s.substring(prev_i,ci).toInt();
+    int d;
+    
+    if (i != -1) {
+      d = s.substring(ci+1,i).toInt();
+    } else {
+      d = s.substring(ci+1).toInt();
+    }
+    
+     note(f,d);
+      Serial.print(f);
+      Serial.print('\t');
+      Serial.print(d);
+      Serial.print('\n');
+  } while (i != -1);
 }
 
 
@@ -48,13 +76,13 @@ void setup() {
   pinMode(BLUE, OUTPUT);
   digitalWrite(BLUE, HIGH);
   red();
-  //Serial.begin(9600); // Initialize serial communications with the PC
+ // Serial.begin(9600); // Initialize serial communications with the PC
   SPI.begin(); // Init SPI bus
   mfrc522.PCD_Init(); // Init MFRC522
   mfrc522.PCD_DumpVersionToSerial(); // Show details of PCD - MFRC522 Card Reader details
   Serial.println(F("Scan PICC to see UID, SAK, type, and data blocks..."));
   WiFi.mode(WIFI_STA);
-  WiFiMulti.addAP("ssid", "pass");
+  WiFiMulti.addAP("ssid", "password");
 }
 
 
@@ -85,10 +113,9 @@ void loop() {
     }
     if (http.begin(client, "http://51.38.152.65:8080/scud?id=" + String(uidDec))) { // HTTP
       int httpCode = http.GET();
-      if (httpCode == 200) {
+      if (httpCode == 200) {      
         green();
-        tone(D2, 440, 100);
-        delay(100);
+        play(http.getString());
         blue();
         delay(1000);
       } else {

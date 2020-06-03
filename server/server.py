@@ -249,7 +249,7 @@ def scud():
 	time = datetime.utcnow()
 	cursor.execute("insert into scud (ts,id) values ('{}',{});".format(time,id))
 	conn.commit()
-	cursor.execute("select melody from scud_melody where active = 1::bit order by random() limit 1");
+	cursor.execute("SELECT getMelody({})".format(id));
 	rows = cursor.fetchall()
 	conn.close()
 	if len(rows) > 0:
